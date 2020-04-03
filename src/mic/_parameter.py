@@ -5,6 +5,7 @@ RESOURCE = "Parameter"
 mapping_parameter = {
     'Name': 'label',
     'Value': 'hasFixedValue',
+    'Default Value': 'hasDefaultValue',
 }
 
 def add_parameter(i):
