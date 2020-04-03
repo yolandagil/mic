@@ -50,6 +50,7 @@ def login(username, password):
 
 def first_line_new(resource, i=""):
     click.echo("======= {} ======".format(resource))
+    click.echo("The actual values are:")
 
 
 def ask_simple_value(variable_name, resource_name, default_value=""):

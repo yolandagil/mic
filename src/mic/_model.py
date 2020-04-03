@@ -8,6 +8,8 @@ from mic._model_version import create as create_model_version
 from modelcatalog import ApiException
 import click
 
+from mic._menu import default_menu, create_request, print_request, edit_menu, remove_menu, save_menu, push_menu
+
 mapping_parameter = {
     'Short Description': 'label',
     'Value': 'hasFixedValue',
@@ -21,11 +23,32 @@ mapping_model = {
     'documentation': 'documentation',
 }
 
+
 RESOURCE = "Model"
 def create():
+    click.clear()
+
+    while True:
+        first_line_new(RESOURCE)
+        request = create_request(mapping_model.keys())
+        print_request(request)
+        action = default_menu()
+        click.clear()
+
+        if action == 1:
+            edit_menu(request)
+        elif action == 2:
+            remove_menu()
+        elif action == 3:
+            save_menu()
+        elif action == 4:
+            push_menu()
+        elif action == 5:
+            break
+
+
+
     model_versions = []
-    click.echo("Adding a new Model")
-    first_line_new(RESOURCE)
     request = {}
     for key in mapping_model:
         value = ask_simple_value(key, RESOURCE)
