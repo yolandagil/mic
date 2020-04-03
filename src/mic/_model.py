@@ -27,16 +27,16 @@ mapping_model = {
 RESOURCE = "Model"
 def create():
     click.clear()
+    request = create_request(mapping_model.keys())
 
     while True:
+        click.clear()
         first_line_new(RESOURCE)
-        request = create_request(mapping_model.keys())
         print_request(request)
         action = default_menu()
-        click.clear()
 
         if action == 1:
-            edit_menu(request)
+            edit_menu(request, RESOURCE)
         elif action == 2:
             remove_menu()
         elif action == 3:
