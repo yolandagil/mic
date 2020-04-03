@@ -61,6 +61,20 @@ def ask_simple_value(variable_name, resource_name, default_value=""):
     else:
         return []
 
+def ask_simple_value_definition(variable_name, resource_name, entry, default_value=""):
+    definition = entry['definition']
+    required = entry['required']
+    text_required = "[REQUIRED]"
+    if not required:
+        text_required = "[OPTIONAL]"
+    if variable_name.lower() == "name":
+        default_value = None
+    value = click.prompt('{} - {} \n--{} DEFINITION : {}'.format(resource_name, variable_name, variable_name, definition) + ' ' + text_required+'\n', default=default_value)
+    if value:
+        return [value]
+    else:
+        return []
+
 
 def init_logger():
     logger = logging.getLogger()
