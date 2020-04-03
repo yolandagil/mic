@@ -61,9 +61,6 @@ def get_complex(mapping, resource):
 def is_complex(resource, _property):
     builtin_types = ["int", "str", "bool", "float"]
     for b in builtin_types:
-        print(b)
-        print(_property)
-        print(resource.openapi_types[_property])
         if b in resource.openapi_types[_property]:
             return False
     return True

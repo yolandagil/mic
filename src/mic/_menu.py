@@ -1,4 +1,5 @@
 import click
+from mic._utils import first_line_new
 from mic._mappings import *
 from tabulate import tabulate
 
@@ -68,7 +69,6 @@ def edit_menu(request, resource_name, mapping):
     var_selected = select_resource(request, mapping=mapping, action="edit")
     request[var_selected] = ask_value(var_selected, resource_name=resource_name, mapping=mapping)
 
-
 def remove_menu(request):
     pass
 
@@ -87,16 +87,16 @@ def parse(value):
 
 def ask_value(variable_name, resource_name, mapping, default_value=""):
     if mapping[variable_name]["complex"]:
-        value = ask_complex_value(variable_name, mapping, resource_name=resource_name)
+        value = ask_complex_value(variable_name, resource_name, mapping)
     else:
-        value = ask_simple_value(variable_name, resource_name=resource_name)
+        value = ask_simple_value(variable_name, resource_name)
     return value
 
 
 def ask_complex_value(variable_name, resource_name, mapping, default_value=""):
-    sub_resource = [{}]
-    if mapping[variable_name] == "has_version":
-        edit_menu(sub_resource, "Model Version", mapping_model_version)
+    sub_resource = create_request(mapping_model_version.keys())
+    if mapping[variable_name]["id"] == "has_version":
+        return top_resource(mapping_model_version, SoftwareVersion)
     pass
 
 def ask_simple_value(variable_name, resource_name, default_value=""):
@@ -107,3 +107,24 @@ def ask_simple_value(variable_name, resource_name, default_value=""):
         return [value]
     else:
         return []
+
+
+def top_resource(mapping, resource):
+    request = create_request(mapping.keys())
+    while True:
+        click.clear()
+        first_line_new(resource)
+        print_request(request, mapping)
+        action = default_menu()
+
+        if action == 1:
+            edit_menu(request, resource, mapping)
+        elif action == 2:
+            remove_menu()
+        elif action == 3:
+            save_menu()
+        elif action == 4:
+            push_menu()
+        elif action == 5:
+            break
+    return [request]
