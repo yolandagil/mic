@@ -4,40 +4,37 @@ from mic._mappings import *
 from tabulate import tabulate
 
 
-def default_menu():
+def edit_menu(choice, request, resource_name, mapping):
+    var_selected = list(request.keys())[choice-1]
+    request[var_selected] = ask_value(var_selected, resource_name=resource_name, mapping=mapping)
+    click.clear()
+
+def default_menu(request, resource_name, mapping):
     """
     First menu: Selection the action
     """
-    click.echo("")
-    click.echo("======== ACTIONS ======")
-    click.echo("Available actions are:")
-    choices = ["Edit", "Remove", "Save", "Send", "Exit"]
-    print_choices(choices)
-    action = click.prompt("Select the action",
+    print_request(request, mapping)
+    properties_choices = list(request.keys())
+    actions_choices = ["save", "send", "exit"]
+    choices = properties_choices + actions_choices
+    print_choices(properties_choices)
+    action = click.prompt("Select the property to edit",
                           default=1,
-                          show_choices=False,
-                          type=click.Choice(range(1, len(choices) + 1)),
+                          show_choices=True,
+                          type=click.Choice(list(range(1, len(properties_choices) + 1)) + actions_choices),
                           value_proc=parse
                           )
+    if type(action) == str:
+        action = handle_actions(request, action)
     return action
 
 
-def select_resource(request, action, mapping):
-    """
-    Second menu: Selecting the property
-    """
-    click.clear()
-    print_request(request, mapping)
-    choices = request.keys()
-    print_choices(choices)
-    action = click.prompt("Select the resource to {}".format(action),
-                          default=1,
-                          show_choices=False,
-                          type=click.Choice(range(1, len(choices) + 1)),
-                          value_proc=parse
-                          )
-    return list(choices)[action - 1]
-
+def handle_actions(request, action):
+    if action == "save":
+        save_menu(request)
+    elif action == "send":
+        push_menu(request)
+    return 0
 
 def create_request(keys):
     """
@@ -64,10 +61,6 @@ def print_choices(choices):
         click.echo("[{}] {}".format(index + 1, choice))
 
 
-def edit_menu(request, resource_name, mapping):
-    click.clear()
-    var_selected = select_resource(request, mapping=mapping, action="edit")
-    request[var_selected] = ask_value(var_selected, resource_name=resource_name, mapping=mapping)
 
 def remove_menu(request):
     pass
@@ -82,7 +75,10 @@ def push_menu(request):
 
 
 def parse(value):
-    return int(value)
+    try:
+        return int(value)
+    except:
+        return value
 
 
 def ask_value(variable_name, resource_name, mapping, default_value=""):
@@ -109,22 +105,17 @@ def ask_simple_value(variable_name, resource_name, default_value=""):
         return []
 
 
-def top_resource(mapping, resource):
+def top_resource(mapping, resource_name):
     request = create_request(mapping.keys())
     while True:
         click.clear()
-        first_line_new(resource)
-        print_request(request, mapping)
-        action = default_menu()
-
-        if action == 1:
-            edit_menu(request, resource, mapping)
-        elif action == 2:
-            remove_menu()
-        elif action == 3:
-            save_menu()
-        elif action == 4:
-            push_menu()
-        elif action == 5:
+        first_line_new(resource_name)
+        choice = default_menu(request, resource_name, mapping)
+        if choice == 0:
             break
+        else:
+            edit_menu(choice, request, resource_name, mapping)
+
+
+
     return [request]
