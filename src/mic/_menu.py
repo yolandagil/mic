@@ -13,8 +13,19 @@ def edit_menu(choice, request, resource_name, mapping):
     if response != ["c"]:
         print(response)
         request[var_selected] = response
-    #click.clear()
 
+
+def show_menu(request):
+    selection = click.prompt("Which property would you like to show?",
+                             default=1,
+                             show_choices=True,
+                             type=click.Choice(list(range(1, len(request.keys()) + 1))),
+                             value_proc=parse
+                             )
+    # TO DO: make sure selected variable is within range
+    var_selected = list(request.keys())[selection - 1]
+    print('Current value for ' + var_selected + ' is: ' + str(request[var_selected]))
+    input('Press any key to continue')
 
 def default_menu(request, resource_name, mapping):
     """
@@ -22,7 +33,7 @@ def default_menu(request, resource_name, mapping):
     """
     print_request(request, mapping)
     properties_choices = list(request.keys())
-    actions_choices = ["save", "send", "load", "exit"]
+    actions_choices = ["show","save", "send", "load", "exit"]
     choices = properties_choices + actions_choices
     #print_choices(properties_choices)
     action = click.prompt("Select the property to edit",
@@ -31,6 +42,7 @@ def default_menu(request, resource_name, mapping):
                           type=click.Choice(list(range(1, len(properties_choices) + 1)) + actions_choices),
                           value_proc=parse
                           )
+    # TO DO: make sure selected action is within valid range!
     if type(action) == str:
         action = handle_actions(request, action)
     return action
@@ -39,6 +51,8 @@ def default_menu(request, resource_name, mapping):
 def handle_actions(request, action):
     if action == "exit":
         return 0
+    if action == "show":
+        return -2
     if action == "save":
         save_menu(request)
     elif action == "send":
@@ -67,10 +81,13 @@ def create_request(keys):
 
 def print_request(request, mapping):
     table = []
-    headers = ["id", "Property", "Value", "Complex"]
+    headers = ["no.", "Property", "Value", "Complex"]
     i = 1
     for key, value in request.items():
-        table.append([i, key, value, mapping[key]["complex"]])
+        # value is a list, not a string. We truncate at 50 char
+        short_value = (value if (value is None or len(str(value)) < 50) else str(value)[:50] + "...")
+        # print(len(str(value)))
+        table.append([i, key, short_value, mapping[key]["complex"]])
         i = i+1
     print(tabulate(table, headers, tablefmt="grid"))
 
@@ -167,10 +184,15 @@ def top_resource(mapping, resource_name):
         first_line_new(resource_name)
         choice = default_menu(request, resource_name, mapping)
         if choice == 0:
+            # exit
             break
         elif choice == -1:
-            #click.confirm("Continue editing?", abort=True)
+            # Save, send, load (do not finish)
+            # click.confirm("Continue editing?", abort=True)
             continue
+        elif choice == -2:
+            # Show a definition of the current resource
+            show_menu(request)
         else:
             edit_menu(choice, request, resource_name, mapping)
     return [request]
