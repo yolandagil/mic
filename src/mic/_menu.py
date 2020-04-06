@@ -7,8 +7,8 @@ import json
 
 def edit_menu(choice, request, resource_name, mapping):
     var_selected = list(request.keys())[choice - 1]
-    print('Current value for '+var_selected+' is: ' + str(request[var_selected]))
-    print('Insert new value (c to cancel)')
+    print('Current value for ' + var_selected + ' is: ' + str(request[var_selected]))
+    print('Insert new value (c to CANCEL)')
     response = ask_value(var_selected, resource_name=resource_name, mapping=mapping)
     if response != ["c"]:
         print(response)
@@ -27,15 +27,16 @@ def show_menu(request):
     print('Current value for ' + var_selected + ' is: ' + str(request[var_selected]))
     input('Press any key to continue')
 
+
 def default_menu(request, resource_name, mapping):
     """
     First menu: Selection the action
     """
     print_request(request, mapping)
     properties_choices = list(request.keys())
-    actions_choices = ["show","save", "send", "load", "exit"]
+    actions_choices = ["show", "save", "send", "load", "exit"]
     choices = properties_choices + actions_choices
-    #print_choices(properties_choices)
+    # print_choices(properties_choices)
     action = click.prompt("Select the property to edit",
                           default=1,
                           show_choices=True,
@@ -88,7 +89,7 @@ def print_request(request, mapping):
         short_value = (value if (value is None or len(str(value)) < 50) else str(value)[:50] + "...")
         # print(len(str(value)))
         table.append([i, key, short_value, mapping[key]["complex"]])
-        i = i+1
+        i = i + 1
     print(tabulate(table, headers, tablefmt="grid"))
 
 
@@ -156,7 +157,7 @@ def ask_value(variable_name, resource_name, mapping, default_value=""):
     if mapping[variable_name]["complex"]:
         value = ask_complex_value(variable_name, resource_name, mapping)
     else:
-        value = ask_simple_value(variable_name, resource_name)
+        value = ask_simple_value(variable_name, resource_name, mapping[variable_name])
     return value
 
 
@@ -164,13 +165,23 @@ def ask_complex_value(variable_name, resource_name, mapping, default_value=""):
     sub_resource = create_request(mapping_model_version.keys())
     if mapping[variable_name]["id"] == "has_version":
         return top_resource(mapping_model_version, SoftwareVersion)
+    elif mapping[variable_name]["id"] == "author" or "contributor" or "has_contact_person":
+        return top_resource(mapping_model_version, Person)
     pass
 
 
-def ask_simple_value(variable_name, resource_name, default_value=""):
+def ask_simple_value(variable_name, resource_name, entry, default_value=""):
+    definition = entry['definition']
+    required = entry['required']
+    text_required = "[REQUIRED]"
     if variable_name.lower() == "name":
         default_value = None
-    value = click.prompt('{} - {} '.format(resource_name, variable_name), default=default_value)
+    if not required:
+        text_required = "[OPTIONAL]"
+    #   value = click.prompt('{} - {} '.format(resource_name, variable_name), default=default_value)
+    value = click.prompt('{} - {} [DEFINITION : {}]'.format(resource_name, variable_name,
+                                                            definition) + ' ' + text_required + '\n',
+                         default=default_value)
     if value:
         return [value]
     else:
@@ -181,6 +192,7 @@ def top_resource(mapping, resource_name):
     request = create_request(mapping.keys())
     while True:
         click.clear()
+        # print(mapping)
         first_line_new(resource_name)
         choice = default_menu(request, resource_name, mapping)
         if choice == 0:

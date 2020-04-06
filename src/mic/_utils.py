@@ -48,6 +48,7 @@ def login(username, password):
         quit()
     return configuration
 
+
 def first_line_new(resource, i=""):
     click.echo("======= {} ======".format(resource))
     click.echo("The actual values are:")
@@ -77,4 +78,3 @@ def init_logger():
 
 def get_latest_version():
     return requests.get("https://pypi.org/pypi/mic/json").json()["info"]["version"]
-
