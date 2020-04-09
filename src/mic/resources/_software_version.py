@@ -4,7 +4,7 @@ from mic._utils import first_line_new, get_api
 from mic._mappings import *
 from modelcatalog import ApiException
 #Version: number
-RESOURCE = "ModelVersion Version"
+RESOURCE = "SoftwareVersion"
 
 
 def create():

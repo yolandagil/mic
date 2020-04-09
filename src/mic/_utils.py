@@ -49,8 +49,13 @@ def login(username, password):
     return configuration
 
 
-def first_line_new(resource, i=""):
-    click.echo("======= {} ======".format(resource))
+def first_line_new(resource, subresource=None):
+    click.echo("======= {} ======".format(resource.name))
+    if subresource:
+        click.echo("======= {} ======".format(subresource.name))
+    else:
+        click.echo("======= {} ======".format("top"))
+
     click.echo("The actual values are:")
 
 
