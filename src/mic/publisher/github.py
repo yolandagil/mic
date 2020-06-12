@@ -34,17 +34,17 @@ def create_local_repo_and_commit(model_directory: Path):
 
 
 def push(model_directory: Path, mic_config_path: Path, profile):
-    click.secho("Creating the git repository")
+    # click.secho("Creating the git repository")
     repo = get_or_create_repo(model_directory)
-    click.secho("Compressing your code")
+    click.secho("Compressing: {}".format(model_directory))
     compress_src_dir(model_directory)
-    click.secho("Creating a new commit")
+    # click.secho("Creating a new commit")
     git_commit(repo)
-    click.secho("Creating or using the GitHub repository")
+    click.secho("Updating remote repository")
     url = check_create_remote_repo(repo, profile, model_directory.name, model_directory)
-    click.secho("Creating a new version")
+    click.secho("Generating a new version")
     _version = git_tag(repo, author)
-    click.secho("Pushing your changes to the server")
+    click.secho("Pushing changes")
     git_push(repo, profile, _version)
     repo = get_github_repo(profile, model_directory.name)
     for i in repo.get_contents(""):

@@ -405,7 +405,7 @@ def step7(mic_file, profile):
     info_step8()
     mic_config_path = Path(mic_file)
     model_dir = mic_config_path.parent
-    click.secho("Deleting the executions")
+    # click.secho("Deleting the executions")
     push(model_dir, mic_config_path, profile)
     publish_docker(mic_config_path, profile)
     write_spec(mic_config_path, STEP_KEY, 7)
